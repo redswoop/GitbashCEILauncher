@@ -1,4 +1,4 @@
-# ComfyUI Starter with SageAttention (CSA)
+# GitBash ComfyUI Easy Install Starter with Custom Paths
 
 A bash script for **ComfyUI Easy Install** users that provides flexible path management and launches ComfyUI with SageAttention optimization.
 
