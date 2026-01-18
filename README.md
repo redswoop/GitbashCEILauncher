@@ -37,7 +37,7 @@ The script manages three key directories with intelligent fallback behavior:
 
 ### Basic Usage
 ```bash
-./csa
+./start_sage
 ```
 
 ### With Custom Paths
@@ -46,18 +46,18 @@ The script manages three key directories with intelligent fallback behavior:
 export COMFY_OUTPUT_DIR="/path/to/my/outputs"
 export COMFY_USER_DIR="/path/to/my/user/settings"
 export COMFY_INPUT_DIR="/path/to/my/inputs"
-./csa
+./start_sage
 ```
 
 ### With Additional ComfyUI Arguments
 ```bash
 # Pass any ComfyUI command line arguments
-./csa --port 8080 --cpu --preview-method auto
+./start_sage --port 8080 --cpu --preview-method auto
 ```
 
 ### One-liner with Custom Paths
 ```bash
-COMFY_OUTPUT_DIR="/my/outputs" COMFY_USER_DIR="/my/user" ./csa --port 8080
+COMFY_OUTPUT_DIR="/my/outputs" COMFY_USER_DIR="/my/user" ./start_sage --port 8080
 ```
 
 ## Environment Variables
@@ -85,11 +85,11 @@ COMFY_OUTPUT_DIR="/my/outputs" COMFY_USER_DIR="/my/user" ./csa --port 8080
 2. **Place the script** in your ComfyUI Easy Install root directory (same level as `ComfyUI/` folder)
 3. **Make it executable** (optional, but recommended):
    ```bash
-   chmod +x csa
+   chmod +x start_sage
    ```
 4. **Run from Git Bash**:
    ```bash
-   ./csa
+   ./start_sage
    ```
 
 ## Example Scenarios
@@ -97,25 +97,25 @@ COMFY_OUTPUT_DIR="/my/outputs" COMFY_USER_DIR="/my/user" ./csa --port 8080
 ### Separate Outputs by Project
 ```bash
 # For project A
-COMFY_OUTPUT_DIR="/projects/project-a/outputs" ./csa
+COMFY_OUTPUT_DIR="/projects/project-a/outputs" ./start_sage
 
 # For project B  
-COMFY_OUTPUT_DIR="/projects/project-b/outputs" ./csa
+COMFY_OUTPUT_DIR="/projects/project-b/outputs" ./start_sage
 ```
 
 ### Shared Asset Library
 ```bash
 # Use a centralized input directory
-COMFY_INPUT_DIR="/shared/assets" ./csa
+COMFY_INPUT_DIR="/shared/assets" ./start_sage
 ```
 
 ### Development vs Production
 ```bash
 # Development environment
-COMFY_USER_DIR="/dev/comfy-settings" ./csa --port 8080
+COMFY_USER_DIR="/dev/comfy-settings" ./start_sage --port 8080
 
 # Production environment  
-COMFY_USER_DIR="/prod/comfy-settings" ./csa --port 80
+COMFY_USER_DIR="/prod/comfy-settings" ./start_sage --port 80
 ```
 
 ## Output Example
@@ -165,7 +165,7 @@ choco install gum
 ### "Permission denied"
 Make the script executable:
 ```bash
-chmod +x csa
+chmod +x start_sage
 ```
 
 ### "No such file or directory: python.exe"
