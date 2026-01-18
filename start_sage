@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Comfy Starter script for Git-Bash users
+#
+# PATH RESOLUTION SYSTEM:
+# This script implements a hierarchical path resolution system for ComfyUI's three main directories:
+#
+# 1. OUTPUT DIRECTORY (COMFY_OUTPUT_DIR → ${COMFY_DIR}/output)
+#    - First checks for explicit COMFY_OUTPUT_DIR environment variable
+#    - Falls back to "${COMFY_DIR}/output" if not set
+#    - Used for storing generated images and workflow outputs
+#
+# 2. USER DIRECTORY (COMFY_USER_DIR → ${COMFY_DIR}/user)  
+#    - First checks for explicit COMFY_USER_DIR environment variable
+#    - Falls back to "${COMFY_DIR}/user" if not set
+#    - Contains user-specific settings, custom workflows, and preferences
+#
+# 3. INPUT DIRECTORY (COMFY_INPUT_DIR → ${COMFY_DIR}/input)
+#    - First checks for explicit COMFY_INPUT_DIR environment variable  
+#    - Falls back to "${COMFY_DIR}/input" if not set
+#    - Source location for input images, videos, and other assets
+#
+# Each path follows the same priority: explicit environment variable → COMFY_DIR-based default → unset
+# This allows flexible deployment while maintaining sensible defaults within the ComfyUI structure.
+
+# Check if gum is available
+HAS_GUM="false"
+if command -v gum >/dev/null 2>&1; then
+    HAS_GUM="true"
+fi
+HAS_GUM="false"
+
+# Display helper functions with gum fallbacks
+format_header() {
+    local text="$1"
+    if [ "$HAS_GUM" = "true" ]; then
+        gum format --type markdown -- "$text"
+    else
+        echo "$text"
+    fi
+}
+
+format_section() {
+    local text="$1"
+    if [ "$HAS_GUM" = "true" ]; then
+        gum format --type markdown -- "$text"
+    else
+        echo "$text"
+    fi
+}
+
+display_box() {
+    if [ "$HAS_GUM" = "true" ]; then
+        gum style --border normal --padding "1 2" --margin "1" -- "$@"
+    else
+        echo "----------------------------------------"
+        for line in "$@"; do
+            echo "$line"
+        done
+        echo "----------------------------------------"
+    fi
+}
+
+format_header "# Starting Comfy with SageAttention"
+
+# Set default COMFY_DIR if not defined
+if [ -z "$COMFY_DIR" ]; then
+    COMFY_DIR="./ComfyUI"
+fi
+
+# Hierarchical path resolution for ComfyUI directories
+# Check each variable and fall back to COMFY_DIR-based paths if not set
+
+if [ -n "$COMFY_OUTPUT_DIR" ]; then
+    FINAL_OUTPUT_DIR="$COMFY_OUTPUT_DIR"
+elif [ -n "$COMFY_DIR" ]; then
+    FINAL_OUTPUT_DIR="${COMFY_DIR}/output"
+fi
+
+if [ -n "$COMFY_USER_DIR" ]; then
+    FINAL_USER_DIR="$COMFY_USER_DIR"
+elif [ -n "$COMFY_DIR" ]; then
+    FINAL_USER_DIR="${COMFY_DIR}/user"
+fi
+
+if [ -n "$COMFY_INPUT_DIR" ]; then
+    FINAL_INPUT_DIR="$COMFY_INPUT_DIR"
+elif [ -n "$COMFY_DIR" ]; then
+    FINAL_INPUT_DIR="${COMFY_DIR}/input"
+fi
+
+# Build command with only the directories that are set
+CMD_ARGS=(
+    "./python_embeded/python.exe" "-I" "-W ignore::FutureWarning" "ComfyUI/main.py"
+    "--use-sage-attention"
+    "--listen"
+    "--enable-manager-legacy"
+)
+
+if [ -n "$FINAL_OUTPUT_DIR" ]; then
+    CMD_ARGS+=("--output-directory" "$FINAL_OUTPUT_DIR")
+fi
+
+if [ -n "$FINAL_USER_DIR" ]; then
+    CMD_ARGS+=("--user-directory" "$FINAL_USER_DIR")
+fi
+
+if [ -n "$FINAL_INPUT_DIR" ]; then
+    CMD_ARGS+=("--input-directory" "$FINAL_INPUT_DIR")
+fi
+
+# Add any additional command line arguments passed to this script
+if [ $# -gt 0 ]; then
+    CMD_ARGS+=("$@")
+fi
+
+# Display the chosen paths using our display functions
+format_section "## Configuration Paths"
+DISPLAY_PATHS=()
+if [ -n "$FINAL_OUTPUT_DIR" ]; then
+    DISPLAY_PATHS+=("Output Directory: $FINAL_OUTPUT_DIR")
+fi
+if [ -n "$FINAL_USER_DIR" ]; then
+    DISPLAY_PATHS+=("User Directory:   $FINAL_USER_DIR")
+fi
+if [ -n "$FINAL_INPUT_DIR" ]; then
+    DISPLAY_PATHS+=("Input Directory:  $FINAL_INPUT_DIR")
+fi
+
+if [ ${#DISPLAY_PATHS[@]} -gt 0 ]; then
+    display_box "${DISPLAY_PATHS[@]}"
+else
+    display_box "Using default ComfyUI directories"
+fi
+
+# Display all command line arguments being passed
+format_section "## Command Line Arguments"
+COMMAND_DISPLAY=()
+for arg in "${CMD_ARGS[@]}"; do
+    COMMAND_DISPLAY+=("$arg")
+done
+display_box "${COMMAND_DISPLAY[@]}"
+
+# Run ComfyUI with the resolved paths
+"${CMD_ARGS[@]}" 
